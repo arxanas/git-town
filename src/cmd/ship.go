@@ -219,7 +219,7 @@ func shipStepList(config *shipConfig, commitMessage string, repo *git.ProdRepo) 
 	updateBranchSteps(&list, config.branchToMergeInto, true, config.branchesDeletedOnRemote, repo) // sync the parent branch
 	updateBranchSteps(&list, config.branchToShip, false, config.branchesDeletedOnRemote, repo)     // sync the branch to ship locally only
 	list.Add(&steps.EnsureHasShippableChangesStep{Branch: config.branchToShip})
-	list.Add(&steps.CheckoutBranchStep{Branch: config.branchToMergeInto})
+	list.Add(&steps.CheckoutStep{Branch: config.branchToMergeInto})
 	if config.canShipViaAPI {
 		// update the proposals of child branches
 		for _, childProposal := range config.proposalsOfChildBranches {
@@ -239,7 +239,7 @@ func shipStepList(config *shipConfig, commitMessage string, repo *git.ProdRepo) 
 		})
 		list.Add(&steps.PullBranchStep{})
 	} else {
-		list.Add(&steps.SquashMergeBranchStep{Branch: config.branchToShip, CommitMessage: commitMessage})
+		list.Add(&steps.SquashMergeStep{Branch: config.branchToShip, CommitMessage: commitMessage})
 	}
 	if config.hasOrigin && !config.isOffline {
 		list.Add(&steps.PushBranchStep{Branch: config.branchToMergeInto, Undoable: true})
@@ -260,7 +260,7 @@ func shipStepList(config *shipConfig, commitMessage string, repo *git.ProdRepo) 
 	}
 	if !config.isShippingInitialBranch {
 		// TODO: check out the main branch here?
-		list.Add(&steps.CheckoutBranchStep{Branch: config.initialBranch})
+		list.Add(&steps.CheckoutStep{Branch: config.initialBranch})
 	}
 	list.Wrap(runstate.WrapOptions{RunInGitRoot: true, StashOpenChanges: !config.isShippingInitialBranch}, repo)
 	return list.Result()

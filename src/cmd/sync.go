@@ -153,7 +153,7 @@ func syncBranchesSteps(config *syncConfig, repo *git.ProdRepo) (runstate.StepLis
 	for _, branch := range config.branchesToSync {
 		syncStepsForBranch(&list, branch, config, repo)
 	}
-	list.Add(&steps.CheckoutBranchStep{Branch: config.initialBranch})
+	list.Add(&steps.CheckoutStep{Branch: config.initialBranch})
 	if config.hasOrigin && config.shouldPushTags && !config.isOffline {
 		list.Add(&steps.PushTagsStep{})
 	}
@@ -203,7 +203,7 @@ func updateBranchSteps(list *runstate.StepListBuilder, branch string, pushBranch
 	if !hasOrigin && !isFeatureBranch {
 		return
 	}
-	list.Add(&steps.CheckoutBranchStep{Branch: branch})
+	list.Add(&steps.CheckoutStep{Branch: branch})
 	if isFeatureBranch {
 		updateFeatureBranchSteps(list, branch, branchesWithDeletedRemote, repo)
 	} else {
@@ -257,7 +257,7 @@ func updateNonFeatureBranchSteps(list *runstate.StepListBuilder, branch string, 
 func syncTrackingBranchSteps(list *runstate.StepListBuilder, trackingBranch, syncStrategy string) {
 	switch syncStrategy {
 	case "merge":
-		list.Add(&steps.MergeBranchStep{Branch: trackingBranch})
+		list.Add(&steps.MergeStep{Branch: trackingBranch})
 	case "rebase":
 		list.Add(&steps.RebaseBranchStep{Branch: trackingBranch})
 	default:
@@ -269,7 +269,7 @@ func syncTrackingBranchSteps(list *runstate.StepListBuilder, trackingBranch, syn
 func syncParentSteps(list *runstate.StepListBuilder, parentBranch, syncStrategy string) {
 	switch syncStrategy {
 	case "merge":
-		list.Add(&steps.MergeBranchStep{Branch: parentBranch})
+		list.Add(&steps.MergeStep{Branch: parentBranch})
 	case "rebase":
 		list.Add(&steps.RebaseBranchStep{Branch: parentBranch})
 	default:
