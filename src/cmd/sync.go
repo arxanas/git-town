@@ -179,12 +179,12 @@ func syncStepsForBranch(list *runstate.StepListBuilder, branch string, config *s
 // deleteBranchSteps adds the steps to delete the branch with the given name locally.
 func deleteBranchSteps(list *runstate.StepListBuilder, branch string, config *syncConfig, repo *git.ProdRepo) {
 	if config.initialBranch == branch {
-		list.Add(&steps.CheckoutBranchStep{Branch: config.mainBranch})
+		list.Add(&steps.CheckoutStep{Branch: config.mainBranch})
 	}
 	parent := repo.Config.ParentBranch(branch)
 	if parent != "" {
 		for _, child := range repo.Config.ChildBranches(branch) {
-			list.Add(&steps.SetParentBranchStep{Branch: child, ParentBranch: parent})
+			list.Add(&steps.SetParentStep{Branch: child, ParentBranch: parent})
 		}
 		list.Add(&steps.DeleteParentBranchStep{Branch: branch})
 	}
