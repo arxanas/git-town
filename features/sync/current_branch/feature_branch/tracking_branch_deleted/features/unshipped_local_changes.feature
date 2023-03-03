@@ -1,4 +1,4 @@
-Feature: sync a branch with unshipped local changesn whose tracking branch was deleted
+Feature: sync a branch with unshipped local changes whose tracking branch was deleted
 
   Background:
     Given the feature branch "shipped"
