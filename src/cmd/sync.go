@@ -102,6 +102,7 @@ func determineSyncConfig(allFlag bool, repo *git.ProdRepo) (*syncConfig, error) 
 	if err != nil {
 		return nil, err
 	}
+	mainbranch := repo.Config.MainBranch()
 	if hasOrigin && !isOffline {
 		err := repo.Logging.Fetch()
 		if err != nil {
@@ -144,6 +145,7 @@ func determineSyncConfig(allFlag bool, repo *git.ProdRepo) (*syncConfig, error) 
 		hasOrigin:                 hasOrigin,
 		initialBranch:             initialBranch,
 		isOffline:                 isOffline,
+		mainBranch:                mainbranch,
 		shouldPushTags:            shouldPushTags,
 	}, nil
 }

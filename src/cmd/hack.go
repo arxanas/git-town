@@ -83,13 +83,18 @@ func determineHackConfig(args []string, promptForParent bool, repo *git.ProdRepo
 	if hasBranch {
 		return nil, fmt.Errorf("a branch named %q already exists", targetBranch)
 	}
+	branchesDeletedOnRemote, err := repo.Silent.LocalBranchesWithDeletedTrackingBranches()
+	if err != nil {
+		return nil, err
+	}
 	return &appendConfig{
-		ancestorBranches:    []string{},
-		targetBranch:        targetBranch,
-		parentBranch:        parentBranch,
-		hasOrigin:           hasOrigin,
-		shouldNewBranchPush: shouldNewBranchPush,
-		noPushHook:          !pushHook,
-		isOffline:           isOffline,
+		ancestorBranches:        []string{},
+		branchesDeletedOnRemote: branchesDeletedOnRemote,
+		targetBranch:            targetBranch,
+		parentBranch:            parentBranch,
+		hasOrigin:               hasOrigin,
+		shouldNewBranchPush:     shouldNewBranchPush,
+		noPushHook:              !pushHook,
+		isOffline:               isOffline,
 	}, ec.Err
 }
