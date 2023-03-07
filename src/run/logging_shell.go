@@ -21,7 +21,7 @@ type LoggingShell struct {
 
 // NewLoggingShell provides StreamingShell instances.
 func NewLoggingShell(dryRun *DryRun) *LoggingShell {
-	return &LoggingShell{dryRun: dryRun, silentRunner: silent}
+	return &LoggingShell{dryRun: dryRun}
 }
 
 // WorkingDir provides the directory that this Shell operates in.
@@ -30,7 +30,7 @@ func (shell LoggingShell) WorkingDir() string {
 }
 
 // Run runs the given command in this ShellRunner's directory.
-func (shell LoggingShell) Run(cmd string, args ...string) (*run.Result, error) {
+func (shell LoggingShell) Run(cmd string, args ...string) (*Result, error) {
 	err := shell.PrintCommand(cmd, args...)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (shell LoggingShell) RunStringWith(fullCmd string, options *Options) (*Resu
 }
 
 // PrintCommand prints the given command-line operation on the console.
-func (shell LoggingShell) PrintCommand(cmd string, args ...string) error {
+func (shell LoggingShell) PrintCommand(isRepo bool, currentBranch string, cmd string, args ...string) error {
 	header := cmd + " "
 	for index, part := range args {
 		if strings.Contains(part, " ") {
@@ -94,11 +94,7 @@ func (shell LoggingShell) PrintCommand(cmd string, args ...string) error {
 		}
 		header += part
 	}
-	if cmd == "git" && shell.silentRunner.IsRepository() {
-		currentBranch, err := shell.silentRunner.CurrentBranch()
-		if err != nil {
-			return err
-		}
+	if cmd == "git" && isRepo {
 		header = fmt.Sprintf("[%s] %s", currentBranch, header)
 	}
 	fmt.Println()
@@ -107,11 +103,4 @@ func (shell LoggingShell) PrintCommand(cmd string, args ...string) error {
 		fmt.Println(header)
 	}
 	return nil
-}
-
-// PrintCommand prints the given command-line operation on the console.
-func (shell LoggingShell) PrintCommandAndOutput(result *Result) error {
-	err := shell.PrintCommand(result.Command(), result.Args()...)
-	fmt.Println(result.Output())
-	return err
 }

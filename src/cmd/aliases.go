@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +43,7 @@ This can conflict with other tools that also define Git aliases.`,
 
 func addAliases(repo *git.ProdRepo) error {
 	for _, aliasType := range config.AliasTypes() {
-		result, err1 := repo.Config.AddGitAlias(aliasType)
+		result, err1 := repo.Config.AddGitAlias(aliasType, run.Logging)
 		err2 := repo.LoggingShell.PrintCommandAndOutput(result)
 		if err1 != nil {
 			return err1
