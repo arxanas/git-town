@@ -28,6 +28,7 @@ import (
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/spf13/cobra"
 )
@@ -112,7 +113,7 @@ func validateIsConfigured(repo *git.ProdRepo) error {
 	if err != nil {
 		return err
 	}
-	return repo.RemoveOutdatedConfiguration()
+	return repo.RemoveOutdatedConfiguration(run.Silent)
 }
 
 // ValidateIsRepository asserts that the current directory is in a Git repository.

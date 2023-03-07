@@ -58,7 +58,7 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 }
 
 // RemoveOutdatedConfiguration removes outdated Git Town configuration.
-func (r *ProdRepo) RemoveOutdatedConfiguration() error {
+func (r *ProdRepo) RemoveOutdatedConfiguration(shell run.Shell) error {
 	branches, err := r.Silent.LocalAndOriginBranches()
 	if err != nil {
 		return err
@@ -67,7 +67,7 @@ func (r *ProdRepo) RemoveOutdatedConfiguration() error {
 		hasChildBranch := stringslice.Contains(branches, child)
 		hasParentBranch := stringslice.Contains(branches, parent)
 		if !hasChildBranch || !hasParentBranch {
-			err = r.Config.RemoveParentBranch(child)
+			err = r.Config.RemoveParentBranch(child, shell)
 			if err != nil {
 				return err
 			}

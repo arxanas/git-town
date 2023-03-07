@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // DeleteParentBranchStep removes the parent branch entry in the Git Town configuration.
@@ -21,5 +22,5 @@ func (step *DeleteParentBranchStep) CreateUndoStep(repo *git.ProdRepo) (Step, er
 
 func (step *DeleteParentBranchStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
 	step.previousParent = repo.Config.ParentBranch(step.Branch)
-	return repo.Config.RemoveParentBranch(step.Branch)
+	return repo.Config.RemoveParentBranch(step.Branch, run.Silent)
 }

@@ -8,3 +8,7 @@ type Shell interface {
 	RunStringWith(string, *Options) (*Result, error)
 	WorkingDir() string
 }
+
+// TODO: instantiate correctly
+var Silent = SilentShell{}
+var Logging = LoggingShell{}

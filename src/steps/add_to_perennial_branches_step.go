@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // AddToPerennialBranchesStep adds the branch with the given name as a perennial branch.
@@ -16,5 +17,5 @@ func (step *AddToPerennialBranchesStep) CreateUndoStep(repo *git.ProdRepo) (Step
 }
 
 func (step *AddToPerennialBranchesStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	return repo.Config.AddToPerennialBranches(step.Branch)
+	return repo.Config.AddToPerennialBranches(run.Silent, step.Branch)
 }

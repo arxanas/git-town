@@ -1,4 +1,4 @@
-package git
+package run
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/git-town/git-town/v7/src/run"
 	"github.com/kballard/go-shellquote"
 )
 
@@ -17,12 +16,11 @@ import (
 // and streams the command output to the application output.
 // It is used by Git Town commands to run Git commands that show up in their output.
 type LoggingShell struct {
-	dryRun       *DryRun
-	silentRunner *Runner
+	dryRun *DryRun
 }
 
 // NewLoggingShell provides StreamingShell instances.
-func NewLoggingShell(silent *Runner, dryRun *DryRun) *LoggingShell {
+func NewLoggingShell(dryRun *DryRun) *LoggingShell {
 	return &LoggingShell{dryRun: dryRun, silentRunner: silent}
 }
 
@@ -70,7 +68,7 @@ func (shell LoggingShell) RunMany(commands [][]string) error {
 }
 
 // RunString runs the given command (including possible arguments) in this ShellInDir's directory.
-func (shell LoggingShell) RunString(fullCmd string) (*run.Result, error) {
+func (shell LoggingShell) RunString(fullCmd string) (*Result, error) {
 	parts, err := shellquote.Split(fullCmd)
 	if err != nil {
 		return nil, fmt.Errorf("cannot split command %q: %w", fullCmd, err)
@@ -80,7 +78,7 @@ func (shell LoggingShell) RunString(fullCmd string) (*run.Result, error) {
 }
 
 // RunStringWith runs the given command (including possible arguments) in this ShellInDir's directory.
-func (shell LoggingShell) RunStringWith(fullCmd string, options *run.Options) (*run.Result, error) {
+func (shell LoggingShell) RunStringWith(fullCmd string, options *Options) (*Result, error) {
 	panic("this isn't used")
 }
 
@@ -112,7 +110,7 @@ func (shell LoggingShell) PrintCommand(cmd string, args ...string) error {
 }
 
 // PrintCommand prints the given command-line operation on the console.
-func (shell LoggingShell) PrintCommandAndOutput(result *run.Result) error {
+func (shell LoggingShell) PrintCommandAndOutput(result *Result) error {
 	err := shell.PrintCommand(result.Command(), result.Args()...)
 	fmt.Println(result.Output())
 	return err

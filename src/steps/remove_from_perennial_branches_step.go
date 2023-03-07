@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // RemoveFromPerennialBranchesStep removes the branch with the given name as a perennial branch.
@@ -16,5 +17,5 @@ func (step *RemoveFromPerennialBranchesStep) CreateUndoStep(repo *git.ProdRepo) 
 }
 
 func (step *RemoveFromPerennialBranchesStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	return repo.Config.RemoveFromPerennialBranches(step.Branch)
+	return repo.Config.RemoveFromPerennialBranches(step.Branch, run.Silent)
 }

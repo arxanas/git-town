@@ -172,14 +172,14 @@ func NewGitTown(shell run.Shell) GitTown {
 }
 
 // AddGitAlias sets the given Git alias.
-func (gt *GitTown) AddGitAlias(aliasType AliasType) (*run.Result, error) {
-	return gt.Storage.SetGlobalConfigValue("alias."+string(aliasType), "town "+string(aliasType))
+func (gt *GitTown) AddGitAlias(aliasType AliasType, shell run.Shell) (*run.Result, error) {
+	return gt.Storage.SetGlobalConfigValue("alias."+string(aliasType), "town "+string(aliasType), shell)
 }
 
 // AddToPerennialBranches registers the given branch names as perennial branches.
 // The branches must exist.
-func (gt *GitTown) AddToPerennialBranches(branches ...string) error {
-	return gt.SetPerennialBranches(append(gt.PerennialBranches(), branches...))
+func (gt *GitTown) AddToPerennialBranches(shell run.Shell, branches ...string) error {
+	return gt.SetPerennialBranches(shell, append(gt.PerennialBranches(), branches...))
 }
 
 // AncestorBranches provides the names of all parent branches for the given branch,
@@ -358,7 +358,7 @@ func (gt *GitTown) OriginURLString() string {
 	if remote != "" {
 		return remote
 	}
-	res, _ := gt.Storage.shell.Run("git", "remote", "get-url", OriginRemote)
+	res, _ := run.Silent.Run("git", "remote", "get-url", OriginRemote)
 	return res.OutputSanitized()
 }
 
@@ -446,18 +446,18 @@ func (gt *GitTown) Reload() {
 }
 
 // RemoveFromPerennialBranches removes the given branch as a perennial branch.
-func (gt *GitTown) RemoveFromPerennialBranches(branch string) error {
-	return gt.SetPerennialBranches(stringslice.Remove(gt.PerennialBranches(), branch))
+func (gt *GitTown) RemoveFromPerennialBranches(branch string, shell run.Shell) error {
+	return gt.SetPerennialBranches(shell, stringslice.Remove(gt.PerennialBranches(), branch))
 }
 
 // RemoveGitAlias removes the given Git alias.
-func (gt *GitTown) RemoveGitAlias(command string) (*run.Result, error) {
-	return gt.Storage.RemoveGlobalConfigValue("alias." + command)
+func (gt *GitTown) RemoveGitAlias(command string, shell run.Shell) (*run.Result, error) {
+	return gt.Storage.RemoveGlobalConfigValue("alias."+command, shell)
 }
 
 // RemoveLocalGitConfiguration removes all Git Town configuration.
-func (gt *GitTown) RemoveLocalGitConfiguration() error {
-	result, err := gt.Storage.shell.Run("git", "config", "--remove-section", "git-town")
+func (gt *GitTown) RemoveLocalGitConfiguration(shell run.Shell) error {
+	result, err := shell.Run("git", "config", "--remove-section", "git-town")
 	if err != nil {
 		if result.ExitCode() == 128 {
 			// Git returns exit code 128 when trying to delete a non-existing config section.
@@ -470,133 +470,133 @@ func (gt *GitTown) RemoveLocalGitConfiguration() error {
 }
 
 // RemoveMainBranchConfiguration removes the configuration entry for the main branch name.
-func (gt *GitTown) RemoveMainBranchConfiguration() error {
-	return gt.Storage.RemoveLocalConfigValue(MainBranchKey)
+func (gt *GitTown) RemoveMainBranchConfiguration(shell run.Shell) error {
+	return gt.Storage.RemoveLocalConfigValue(MainBranchKey, shell)
 }
 
 // RemoveParentBranch removes the parent branch entry for the given branch
 // from the Git configuration.
-func (gt *GitTown) RemoveParentBranch(branch string) error {
-	return gt.Storage.RemoveLocalConfigValue("git-town-branch." + branch + ".parent")
+func (gt *GitTown) RemoveParentBranch(branch string, shell run.Shell) error {
+	return gt.Storage.RemoveLocalConfigValue("git-town-branch."+branch+".parent", shell)
 }
 
 // RemovePerennialBranchConfiguration removes the configuration entry for the perennial branches.
-func (gt *GitTown) RemovePerennialBranchConfiguration() error {
-	return gt.Storage.RemoveLocalConfigValue(PerennialBranchesKey)
+func (gt *GitTown) RemovePerennialBranchConfiguration(shell run.Shell) error {
+	return gt.Storage.RemoveLocalConfigValue(PerennialBranchesKey, shell)
 }
 
 // SetCodeHostingDriver sets the "github.code-hosting-driver" setting.
-func (gt *GitTown) SetCodeHostingDriver(value string) error {
+func (gt *GitTown) SetCodeHostingDriver(value string, shell run.Shell) error {
 	gt.Storage.localConfigCache[CodeHostingDriverKey] = value
-	_, err := gt.Storage.shell.Run("git", "config", CodeHostingDriverKey, value)
+	_, err := shell.Run("git", "config", CodeHostingDriverKey, value)
 	return err
 }
 
 // SetCodeHostingOriginHostname sets the "github.code-hosting-driver" setting.
-func (gt *GitTown) SetCodeHostingOriginHostname(value string) error {
+func (gt *GitTown) SetCodeHostingOriginHostname(value string, shell run.Shell) error {
 	gt.Storage.localConfigCache[CodeHostingOriginHostnameKey] = value
-	_, err := gt.Storage.shell.Run("git", "config", CodeHostingOriginHostnameKey, value)
+	_, err := shell.Run("git", "config", CodeHostingOriginHostnameKey, value)
 	return err
 }
 
 // SetColorUI configures whether Git output contains color codes.
-func (gt *GitTown) SetColorUI(value string) error {
-	_, err := gt.Storage.shell.Run("git", "config", "color.ui", value)
+func (gt *GitTown) SetColorUI(value string, shell run.Shell) error {
+	_, err := shell.Run("git", "config", "color.ui", value)
 	return err
 }
 
 // SetMainBranch marks the given branch as the main branch
 // in the Git Town configuration.
-func (gt *GitTown) SetMainBranch(branch string) error {
-	_, err := gt.Storage.SetLocalConfigValue(MainBranchKey, branch)
+func (gt *GitTown) SetMainBranch(branch string, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue(MainBranchKey, branch, shell)
 	return err
 }
 
 // SetNewBranchPush updates whether the current repository is configured to push
 // freshly created branches to origin.
-func (gt *GitTown) SetNewBranchPush(value bool, global bool) error {
+func (gt *GitTown) SetNewBranchPush(value bool, global bool, shell run.Shell) error {
 	setting := strconv.FormatBool(value)
 	if global {
-		_, err := gt.Storage.SetGlobalConfigValue(PushNewBranchesKey, setting)
+		_, err := gt.Storage.SetGlobalConfigValue(PushNewBranchesKey, setting, shell)
 		return err
 	}
-	_, err := gt.Storage.SetLocalConfigValue(PushNewBranchesKey, setting)
+	_, err := gt.Storage.SetLocalConfigValue(PushNewBranchesKey, setting, shell)
 	return err
 }
 
 // SetOffline updates whether Git Town is in offline mode.
-func (gt *GitTown) SetOffline(value bool) error {
-	_, err := gt.Storage.SetGlobalConfigValue(OfflineKey, strconv.FormatBool(value))
+func (gt *GitTown) SetOffline(value bool, shell run.Shell) error {
+	_, err := gt.Storage.SetGlobalConfigValue(OfflineKey, strconv.FormatBool(value), shell)
 	return err
 }
 
 // SetParent marks the given branch as the direct parent of the other given branch
 // in the Git Town configuration.
-func (gt *GitTown) SetParent(branch, parentBranch string) error {
-	_, err := gt.Storage.SetLocalConfigValue("git-town-branch."+branch+".parent", parentBranch)
+func (gt *GitTown) SetParent(branch, parentBranch string, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue("git-town-branch."+branch+".parent", parentBranch, shell)
 	return err
 }
 
 // SetPerennialBranches marks the given branches as perennial branches.
-func (gt *GitTown) SetPerennialBranches(branch []string) error {
-	_, err := gt.Storage.SetLocalConfigValue(PerennialBranchesKey, strings.Join(branch, " "))
+func (gt *GitTown) SetPerennialBranches(shell run.Shell, branch []string) error {
+	_, err := gt.Storage.SetLocalConfigValue(PerennialBranchesKey, strings.Join(branch, " "), shell)
 	return err
 }
 
 // SetPullBranchStrategy updates the configured pull branch strategy.
-func (gt *GitTown) SetPullBranchStrategy(strategy PullBranchStrategy) error {
-	_, err := gt.Storage.SetLocalConfigValue(PullBranchStrategyKey, string(strategy))
+func (gt *GitTown) SetPullBranchStrategy(strategy PullBranchStrategy, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue(PullBranchStrategyKey, string(strategy), shell)
 	return err
 }
 
 // SetPushHookLocally updates the configured pull branch strategy.
-func (gt *GitTown) SetPushHookLocally(value bool) error {
-	_, err := gt.Storage.SetLocalConfigValue(PushHookKey, strconv.FormatBool(value))
+func (gt *GitTown) SetPushHookLocally(value bool, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue(PushHookKey, strconv.FormatBool(value), shell)
 	return err
 }
 
 // SetPushHook updates the configured pull branch strategy.
-func (gt *GitTown) SetPushHookGlobally(value bool) error {
-	_, err := gt.Storage.SetGlobalConfigValue(PushHookKey, strconv.FormatBool(value))
+func (gt *GitTown) SetPushHookGlobally(value bool, shell run.Shell) error {
+	_, err := gt.Storage.SetGlobalConfigValue(PushHookKey, strconv.FormatBool(value), shell)
 	return err
 }
 
 // SetShouldShipDeleteRemoteBranch updates the configured pull branch strategy.
-func (gt *GitTown) SetShouldShipDeleteRemoteBranch(value bool) error {
-	_, err := gt.Storage.SetLocalConfigValue(ShipDeleteRemoteBranchKey, strconv.FormatBool(value))
+func (gt *GitTown) SetShouldShipDeleteRemoteBranch(value bool, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue(ShipDeleteRemoteBranchKey, strconv.FormatBool(value), shell)
 	return err
 }
 
 // SetShouldSyncUpstream updates the configured pull branch strategy.
-func (gt *GitTown) SetShouldSyncUpstream(value bool) error {
-	_, err := gt.Storage.SetLocalConfigValue(SyncUpstreamKey, strconv.FormatBool(value))
+func (gt *GitTown) SetShouldSyncUpstream(value bool, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue(SyncUpstreamKey, strconv.FormatBool(value), shell)
 	return err
 }
 
-func (gt *GitTown) SetSyncStrategy(value SyncStrategy) error {
-	_, err := gt.Storage.SetLocalConfigValue(SyncStrategyKey, string(value))
+func (gt *GitTown) SetSyncStrategy(value SyncStrategy, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue(SyncStrategyKey, string(value), shell)
 	return err
 }
 
-func (gt *GitTown) SetSyncStrategyGlobal(value SyncStrategy) error {
-	_, err := gt.Storage.SetGlobalConfigValue(SyncStrategyKey, string(value))
+func (gt *GitTown) SetSyncStrategyGlobal(value SyncStrategy, shell run.Shell) error {
+	_, err := gt.Storage.SetGlobalConfigValue(SyncStrategyKey, string(value), shell)
 	return err
 }
 
 // SetTestOrigin sets the origin to be used for testing.
-func (gt *GitTown) SetTestOrigin(value string) error {
-	_, err := gt.Storage.SetLocalConfigValue(TestingRemoteURLKey, value)
+func (gt *GitTown) SetTestOrigin(value string, shell run.Shell) error {
+	_, err := gt.Storage.SetLocalConfigValue(TestingRemoteURLKey, value, shell)
 	return err
 }
 
 // ShouldNewBranchPush indicates whether the current repository is configured to push
 // freshly created branches up to origin.
-func (gt *GitTown) ShouldNewBranchPush() (bool, error) {
+func (gt *GitTown) ShouldNewBranchPush(shell run.Shell) (bool, error) {
 	oldLocalConfig := gt.DeprecatedNewBranchPushFlagLocal()
 	if oldLocalConfig != "" {
 		fmt.Printf("I found the deprecated local setting %q.\n", NewBranchPushFlagKey)
 		fmt.Printf("I am upgrading this setting to the new format %q.\n", PushNewBranchesKey)
-		err := gt.Storage.RemoveLocalConfigValue(NewBranchPushFlagKey)
+		err := gt.Storage.RemoveLocalConfigValue(NewBranchPushFlagKey, shell)
 		if err != nil {
 			return false, err
 		}
@@ -604,7 +604,7 @@ func (gt *GitTown) ShouldNewBranchPush() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		err = gt.SetNewBranchPush(parsed, false)
+		err = gt.SetNewBranchPush(parsed, false, shell)
 		if err != nil {
 			return false, err
 		}
@@ -613,7 +613,7 @@ func (gt *GitTown) ShouldNewBranchPush() (bool, error) {
 	if oldGlobalConfig != "" {
 		fmt.Printf("I found the deprecated global setting %q.\n", NewBranchPushFlagKey)
 		fmt.Printf("I am upgrading this setting to the new format %q.\n", PushNewBranchesKey)
-		_, err := gt.Storage.RemoveGlobalConfigValue("git-town.new-branch-push-flag")
+		_, err := gt.Storage.RemoveGlobalConfigValue("git-town.new-branch-push-flag", shell)
 		if err != nil {
 			return false, err
 		}
@@ -621,7 +621,7 @@ func (gt *GitTown) ShouldNewBranchPush() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		err = gt.SetNewBranchPush(parsed, true)
+		err = gt.SetNewBranchPush(parsed, true, shell)
 		if err != nil {
 			return false, err
 		}
