@@ -4,6 +4,7 @@ import (
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // PushBranchStep pushes the branch with the given name to the origin remote.
@@ -25,18 +26,18 @@ func (step *PushBranchStep) CreateUndoStep(repo *git.ProdRepo) (Step, error) {
 }
 
 func (step *PushBranchStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	shouldPush, err := repo.Silent.ShouldPushBranch(step.Branch)
+	shouldPush, err := repo.Runner.ShouldPushBranch(step.Branch, run.Silent)
 	if err != nil {
 		return err
 	}
 	if !shouldPush && !repo.DryRun.IsActive() {
 		return nil
 	}
-	currentBranch, err := repo.Silent.CurrentBranch()
+	currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return err
 	}
-	return repo.Logging.PushBranch(git.PushArgs{
+	return repo.Runner.PushBranch(run.Logging, git.PushArgs{
 		Branch:         step.Branch,
 		ForceWithLease: step.ForceWithLease,
 		NoPushHook:     step.NoPushHook,

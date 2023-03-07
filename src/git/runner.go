@@ -16,6 +16,7 @@ import (
 )
 
 // Runner executes Git commands and caches various aspects of the Git repo for better performance.
+// TODO: rename to Git
 type Runner struct {
 	Config             config.GitTown // caches Git configuration settings
 	CurrentBranchCache *cache.String  // caches the currently checked out Git branch

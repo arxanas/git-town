@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // CreateBranchStep creates a new branch
@@ -18,5 +19,5 @@ func (step *CreateBranchStep) CreateUndoStep(repo *git.ProdRepo) (Step, error) {
 }
 
 func (step *CreateBranchStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	return repo.Logging.CreateBranch(step.Branch, step.StartingPoint)
+	return repo.Runner.CreateBranch(step.Branch, step.StartingPoint, run.Logging)
 }

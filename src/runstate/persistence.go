@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // Load loads the run state for the given Git repo from disk. Can return nil if there is no saved runstate.
@@ -84,7 +85,7 @@ func PersistenceFilePath(repo *git.ProdRepo) (string, error) {
 		return "", err
 	}
 	persistenceDir := filepath.Join(configDir, "git-town", "runstate")
-	repoDir, err := repo.Silent.RootDirectory()
+	repoDir, err := repo.Runner.RootDirectory(run.Silent)
 	if err != nil {
 		return "", err
 	}

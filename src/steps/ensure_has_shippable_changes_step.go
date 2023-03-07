@@ -6,6 +6,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // EnsureHasShippableChangesStep asserts that the branch has unique changes not on the main branch.
@@ -19,7 +20,7 @@ func (step *EnsureHasShippableChangesStep) CreateAutomaticAbortError() error {
 }
 
 func (step *EnsureHasShippableChangesStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	hasShippableChanges, err := repo.Silent.HasShippableChanges(step.Branch)
+	hasShippableChanges, err := repo.Runner.HasShippableChanges(step.Branch, run.Silent)
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/steps"
 )
 
@@ -71,9 +72,9 @@ type WrapOptions struct {
 // Wrap wraps the list with steps that
 // change to the Git root directory or stash away open changes.
 func (stepList *StepList) Wrap(options WrapOptions, repo *git.ProdRepo) error {
-	previousBranch, err := repo.Silent.PreviouslyCheckedOutBranch()
+	previousBranch, err := repo.Runner.PreviouslyCheckedOutBranch(run.Silent)
 	if err == nil {
-		currentBranch, err := repo.Silent.CurrentBranch()
+		currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 		if err != nil {
 			return err
 		}
@@ -82,7 +83,7 @@ func (stepList *StepList) Wrap(options WrapOptions, repo *git.ProdRepo) error {
 			InitialPreviouslyCheckedOutBranch: previousBranch,
 		})
 	}
-	hasOpenChanges, err := repo.Silent.HasOpenChanges()
+	hasOpenChanges, err := repo.Runner.HasOpenChanges(run.Silent)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // ContinueMergeStep finishes an ongoing merge conflict
@@ -16,12 +17,12 @@ func (step *ContinueMergeStep) CreateContinueStep() Step {
 }
 
 func (step *ContinueMergeStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	hasMergeInprogress, err := repo.Silent.HasMergeInProgress()
+	hasMergeInprogress, err := repo.Runner.HasMergeInProgress(run.Silent)
 	if err != nil {
 		return err
 	}
 	if hasMergeInprogress {
-		return repo.Logging.CommitNoEdit()
+		return repo.Runner.CommitNoEdit(run.Logging)
 	}
 	return nil
 }

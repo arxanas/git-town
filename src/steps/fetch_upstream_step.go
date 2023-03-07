@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // FetchUpstreamStep brings the Git history of the local repository
@@ -13,5 +14,5 @@ type FetchUpstreamStep struct {
 }
 
 func (step *FetchUpstreamStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	return repo.Logging.FetchUpstream(step.Branch)
+	return repo.Runner.FetchUpstream(step.Branch, run.Logging)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // CommitOpenChangesStep commits all open changes as a new commit.
@@ -20,17 +21,17 @@ func (step *CommitOpenChangesStep) CreateUndoStep(repo *git.ProdRepo) (Step, err
 
 func (step *CommitOpenChangesStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
 	var err error
-	step.previousSha, err = repo.Silent.CurrentSha()
+	step.previousSha, err = repo.Runner.CurrentSha(run.Silent)
 	if err != nil {
 		return err
 	}
-	err = repo.Logging.StageFiles("-A")
+	err = repo.Runner.StageFiles(run.Logging, "-A")
 	if err != nil {
 		return err
 	}
-	currentBranch, err := repo.Silent.CurrentBranch()
+	currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return err
 	}
-	return repo.Logging.CommitStagedChanges(fmt.Sprintf("WIP on %s", currentBranch))
+	return repo.Runner.CommitStagedChanges(fmt.Sprintf("WIP on %s", currentBranch), run.Logging)
 }

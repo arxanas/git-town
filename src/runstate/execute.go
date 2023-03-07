@@ -6,6 +6,7 @@ import (
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // Execute runs the commands in the given runstate.
@@ -58,11 +59,11 @@ func Execute(runState *RunState, repo *git.ProdRepo, connector hosting.Connector
 			if err != nil {
 				return err
 			}
-			currentBranch, err := repo.Silent.CurrentBranch()
+			currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 			if err != nil {
 				return err
 			}
-			rebasing, err := repo.Silent.HasRebaseInProgress()
+			rebasing, err := repo.Runner.HasRebaseInProgress(run.Silent)
 			if err != nil {
 				return err
 			}

@@ -43,13 +43,9 @@ This can conflict with other tools that also define Git aliases.`,
 
 func addAliases(repo *git.ProdRepo) error {
 	for _, aliasType := range config.AliasTypes() {
-		result, err1 := repo.Config.AddGitAlias(aliasType, run.Logging)
-		err2 := repo.LoggingShell.PrintCommandAndOutput(result)
+		_, err1 := repo.Config.AddGitAlias(aliasType, run.Logging)
 		if err1 != nil {
 			return err1
-		}
-		if err2 != nil {
-			return err2
 		}
 	}
 	return nil
@@ -59,13 +55,9 @@ func removeAliases(repo *git.ProdRepo) error {
 	for _, aliasType := range config.AliasTypes() {
 		existingAlias := repo.Config.GitAlias(aliasType)
 		if existingAlias == "town "+string(aliasType) {
-			result, err1 := repo.Config.RemoveGitAlias(string(aliasType))
-			err2 := repo.LoggingShell.PrintCommandAndOutput(result)
+			_, err1 := repo.Config.RemoveGitAlias(string(aliasType), run.Logging)
 			if err1 != nil {
 				return err1
-			}
-			if err2 != nil {
-				return err2
 			}
 		}
 	}

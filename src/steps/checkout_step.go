@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // CheckoutStep checks out a new branch.
@@ -18,12 +19,12 @@ func (step *CheckoutStep) CreateUndoStep(repo *git.ProdRepo) (Step, error) {
 
 func (step *CheckoutStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
 	var err error
-	step.previousBranch, err = repo.Silent.CurrentBranch()
+	step.previousBranch, err = repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return err
 	}
 	if step.previousBranch != step.Branch {
-		err := repo.Logging.CheckoutBranch(step.Branch)
+		err := repo.Runner.CheckoutBranch(step.Branch, run.Logging)
 		return err
 	}
 	return nil

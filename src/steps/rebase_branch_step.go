@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // RebaseBranchStep rebases the current branch
@@ -27,13 +28,13 @@ func (step *RebaseBranchStep) CreateUndoStep(repo *git.ProdRepo) (Step, error) {
 
 func (step *RebaseBranchStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
 	var err error
-	step.previousSha, err = repo.Silent.CurrentSha()
+	step.previousSha, err = repo.Runner.CurrentSha(run.Silent)
 	if err != nil {
 		return err
 	}
-	err = repo.Logging.Rebase(step.Branch)
+	err = repo.Runner.Rebase(step.Branch, run.Logging)
 	if err != nil {
-		repo.Silent.CurrentBranchCache.Invalidate()
+		repo.Runner.CurrentBranchCache.Invalidate()
 	}
 	return err
 }

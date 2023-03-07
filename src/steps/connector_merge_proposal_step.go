@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // ConnectorMergeProposalStep squash merges the branch with the given name into the current branch.
@@ -44,23 +45,23 @@ func (step *ConnectorMergeProposalStep) Run(repo *git.ProdRepo, connector hostin
 		// Allow the user to enter the commit message as if shipping without a connector
 		// then revert the commit since merging via the connector will perform the actual squash merge.
 		step.enteredEmptyCommitMessage = true
-		err := repo.Logging.SquashMerge(step.Branch)
+		err := repo.Runner.SquashMerge(step.Branch, run.Logging)
 		if err != nil {
 			return err
 		}
-		err = repo.Silent.CommentOutSquashCommitMessage(step.DefaultProposalMessage + "\n\n")
+		err = repo.Runner.CommentOutSquashCommitMessage(step.DefaultProposalMessage+"\n\n", run.Silent)
 		if err != nil {
 			return fmt.Errorf("cannot comment out the squash commit message: %w", err)
 		}
-		err = repo.Logging.StartCommit()
+		err = repo.Runner.StartCommit(run.Logging)
 		if err != nil {
 			return err
 		}
-		commitMessage, err = repo.Silent.LastCommitMessage()
+		commitMessage, err = repo.Runner.LastCommitMessage(run.Silent)
 		if err != nil {
 			return err
 		}
-		err = repo.Logging.DeleteLastCommit()
+		err = repo.Runner.DeleteLastCommit(run.Logging)
 		if err != nil {
 			return err
 		}

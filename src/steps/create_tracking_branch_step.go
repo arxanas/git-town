@@ -4,6 +4,7 @@ import (
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // CreateTrackingBranchStep pushes the current branch up to origin
@@ -19,7 +20,7 @@ func (step *CreateTrackingBranchStep) CreateUndoStep(repo *git.ProdRepo) (Step, 
 }
 
 func (step *CreateTrackingBranchStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	return repo.Logging.PushBranch(git.PushArgs{
+	return repo.Runner.PushBranch(run.Logging, git.PushArgs{
 		Branch:     step.Branch,
 		NoPushHook: step.NoPushHook,
 		Remote:     config.OriginRemote,

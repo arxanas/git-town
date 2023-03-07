@@ -6,6 +6,7 @@ import (
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // SquashMergeStep squash merges the branch with the given name into the current branch.
@@ -20,7 +21,7 @@ func (step *SquashMergeStep) CreateAbortStep() Step {
 }
 
 func (step *SquashMergeStep) CreateUndoStep(repo *git.ProdRepo) (Step, error) {
-	currentSHA, err := repo.Silent.CurrentSha()
+	currentSHA, err := repo.Runner.CurrentSha(run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +33,7 @@ func (step *SquashMergeStep) CreateAutomaticAbortError() error {
 }
 
 func (step *SquashMergeStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	err := repo.Logging.SquashMerge(step.Branch)
+	err := repo.Runner.SquashMerge(step.Branch, run.Logging)
 	if err != nil {
 		return err
 	}
@@ -40,17 +41,17 @@ func (step *SquashMergeStep) Run(repo *git.ProdRepo, connector hosting.Connector
 	if err != nil {
 		return fmt.Errorf("error getting squash commit author: %w", err)
 	}
-	repoAuthor, err := repo.Silent.Author()
+	repoAuthor, err := repo.Runner.Author(run.Silent)
 	if err != nil {
 		return fmt.Errorf("cannot determine repo author: %w", err)
 	}
-	if err = repo.Silent.CommentOutSquashCommitMessage(""); err != nil {
+	if err = repo.Runner.CommentOutSquashCommitMessage("", run.Silent); err != nil {
 		return fmt.Errorf("cannot comment out the squash commit message: %w", err)
 	}
 	if repoAuthor == author {
 		author = ""
 	}
-	return repo.Logging.Commit(step.CommitMessage, author)
+	return repo.Runner.Commit(step.CommitMessage, author, run.Logging)
 }
 
 func (step *SquashMergeStep) ShouldAutomaticallyAbortOnError() bool {

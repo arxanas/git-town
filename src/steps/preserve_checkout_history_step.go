@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // PreserveCheckoutHistoryStep does stuff.
@@ -13,22 +14,22 @@ type PreserveCheckoutHistoryStep struct {
 }
 
 func (step *PreserveCheckoutHistoryStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	expectedPreviouslyCheckedOutBranch, err := repo.Silent.ExpectedPreviouslyCheckedOutBranch(step.InitialPreviouslyCheckedOutBranch, step.InitialBranch)
+	expectedPreviouslyCheckedOutBranch, err := repo.Runner.ExpectedPreviouslyCheckedOutBranch(step.InitialPreviouslyCheckedOutBranch, step.InitialBranch, run.Silent)
 	if err != nil {
 		return err
 	}
 	// NOTE: errors are not a failure condition here --> ignoring them
-	previouslyCheckedOutBranch, _ := repo.Silent.PreviouslyCheckedOutBranch()
+	previouslyCheckedOutBranch, _ := repo.Runner.PreviouslyCheckedOutBranch(run.Silent)
 	if expectedPreviouslyCheckedOutBranch == previouslyCheckedOutBranch {
 		return nil
 	}
-	currentBranch, err := repo.Silent.CurrentBranch()
+	currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return err
 	}
-	err = repo.Silent.CheckoutBranch(expectedPreviouslyCheckedOutBranch)
+	err = repo.Runner.CheckoutBranch(expectedPreviouslyCheckedOutBranch, run.Silent)
 	if err != nil {
 		return err
 	}
-	return repo.Silent.CheckoutBranch(currentBranch)
+	return repo.Runner.CheckoutBranch(currentBranch, run.Silent)
 }

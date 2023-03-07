@@ -12,11 +12,9 @@ import (
 
 // ProdRepo is a Git Repo in production code.
 type ProdRepo struct {
-	Config       config.GitTown // the git.Configuration instance for this repo
-	DryRun       *run.DryRun
-	Logging      Runner            // the Runner instance to Git operations that show up in the output
-	LoggingShell *run.LoggingShell // the LoggingShell instance used
-	Silent       Runner            // the Runner instance for silent Git operations
+	Config config.GitTown // the git.Configuration instance for this repo
+	DryRun *run.DryRun
+	Runner Runner
 }
 
 // NewProdRepo provides a Repo instance in the current working directory.
@@ -28,17 +26,7 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 	isRepoCache := cache.Bool{}
 	remoteBranchCache := cache.Strings{}
 	remotesCache := cache.Strings{}
-	silentRunner := Runner{
-		Config:             config,
-		CurrentBranchCache: &currentBranchTracker,
-		DryRun:             &dryRun,
-		IsRepoCache:        &isRepoCache,
-		RemotesCache:       &remotesCache,
-		RemoteBranchCache:  &remoteBranchCache,
-		RootDirCache:       &cache.String{},
-	}
-	loggingShell := run.NewLoggingShell(&dryRun)
-	loggingRunner := Runner{
+	runner := Runner{
 		Config:             config,
 		CurrentBranchCache: &currentBranchTracker,
 		DryRun:             &dryRun,
@@ -48,17 +36,15 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 		RootDirCache:       &cache.String{},
 	}
 	return ProdRepo{
-		Silent:       silentRunner,
-		Logging:      loggingRunner,
-		LoggingShell: loggingShell,
-		Config:       config,
-		DryRun:       &dryRun,
+		Runner: runner,
+		Config: config,
+		DryRun: &dryRun,
 	}
 }
 
 // RemoveOutdatedConfiguration removes outdated Git Town configuration.
 func (r *ProdRepo) RemoveOutdatedConfiguration(shell run.Shell) error {
-	branches, err := r.Silent.LocalAndOriginBranches(shell)
+	branches, err := r.Runner.LocalAndOriginBranches(shell)
 	if err != nil {
 		return err
 	}
@@ -81,7 +67,7 @@ func (r *ProdRepo) NavigateToRootIfNecessary() error {
 	if err != nil {
 		return fmt.Errorf("cannot get current working directory: %w", err)
 	}
-	gitRootDirectory, err := r.Silent.RootDirectory()
+	gitRootDirectory, err := r.Runner.RootDirectory(run.Silent)
 	if err != nil {
 		return err
 	}

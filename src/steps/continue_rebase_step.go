@@ -3,6 +3,7 @@ package steps
 import (
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // ContinueRebaseStep finishes an ongoing rebase operation
@@ -20,12 +21,12 @@ func (step *ContinueRebaseStep) CreateContinueStep() Step {
 }
 
 func (step *ContinueRebaseStep) Run(repo *git.ProdRepo, connector hosting.Connector) error {
-	hasRebaseInProgress, err := repo.Silent.HasRebaseInProgress()
+	hasRebaseInProgress, err := repo.Runner.HasRebaseInProgress(run.Silent)
 	if err != nil {
 		return err
 	}
 	if hasRebaseInProgress {
-		return repo.Logging.ContinueRebase()
+		return repo.Runner.ContinueRebase(run.Logging)
 	}
 	return nil
 }

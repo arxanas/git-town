@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/steps"
 )
 
@@ -47,7 +48,7 @@ func (runState *RunState) AddPushBranchStepAfterCurrentBranchSteps(repo *git.Pro
 		if !isCheckoutStep(step) {
 			popped.Append(runState.RunStepList.Pop())
 		} else {
-			currentBranch, err := repo.Silent.CurrentBranch()
+			currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 			if err != nil {
 				return err
 			}
@@ -132,7 +133,7 @@ func (runState *RunState) MarkAsFinished() {
 
 // MarkAsUnfinished updates the run state to be marked as unfinished and populates informational fields.
 func (runState *RunState) MarkAsUnfinished(repo *git.ProdRepo) error {
-	currentBranch, err := repo.Silent.CurrentBranch()
+	currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return err
 	}
