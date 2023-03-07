@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/git-town/git-town/v7/src/cache"
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/stringslice"
@@ -22,11 +23,11 @@ type ProdRepo struct {
 func NewProdRepo(debugFlag *bool) ProdRepo {
 	silentShell := run.SilentShell{Debug: debugFlag}
 	config := config.NewGitTown(silentShell)
-	currentBranchTracker := Cache[string]{}
+	currentBranchTracker := cache.String{}
 	dryRun := run.DryRun{}
-	isRepoCache := Cache[bool]{}
-	remoteBranchCache := Cache[[]string]{}
-	remotesCache := Cache[[]string]{}
+	isRepoCache := cache.Bool{}
+	remoteBranchCache := cache.Strings{}
+	remotesCache := cache.Strings{}
 	silentRunner := Runner{
 		Config:             config,
 		CurrentBranchCache: &currentBranchTracker,
@@ -34,7 +35,7 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 		IsRepoCache:        &isRepoCache,
 		RemotesCache:       &remotesCache,
 		RemoteBranchCache:  &remoteBranchCache,
-		RootDirCache:       &Cache[string]{},
+		RootDirCache:       &cache.String{},
 	}
 	loggingShell := run.NewLoggingShell(&dryRun)
 	loggingRunner := Runner{
@@ -44,7 +45,7 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 		IsRepoCache:        &isRepoCache,
 		RemotesCache:       &remotesCache,
 		RemoteBranchCache:  &remoteBranchCache,
-		RootDirCache:       &Cache[string]{},
+		RootDirCache:       &cache.String{},
 	}
 	return ProdRepo{
 		Silent:       silentRunner,

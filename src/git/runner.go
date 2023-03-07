@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/git-town/git-town/v7/src/cache"
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/stringslice"
@@ -16,13 +17,13 @@ import (
 
 // Runner executes Git commands and caches various aspects of the Git repo for better performance.
 type Runner struct {
-	Config             config.GitTown   // caches Git configuration settings
-	CurrentBranchCache *Cache[string]   // caches the currently checked out Git branch
-	DryRun             *run.DryRun      // tracks dry-run information
-	IsRepoCache        *Cache[bool]     // caches whether the current directory is a Git repo
-	RemoteBranchCache  *Cache[[]string] // caches the remote branches of this Git repo
-	RemotesCache       *Cache[[]string] // caches Git remotes
-	RootDirCache       *Cache[string]   // caches the base of the Git directory
+	Config             config.GitTown // caches Git configuration settings
+	CurrentBranchCache *cache.String  // caches the currently checked out Git branch
+	DryRun             *run.DryRun    // tracks dry-run information
+	IsRepoCache        *cache.Bool    // caches whether the current directory is a Git repo
+	RemoteBranchCache  *cache.Strings // caches the remote branches of this Git repo
+	RemotesCache       *cache.Strings // caches Git remotes
+	RootDirCache       *cache.String  // caches the base of the Git directory
 }
 
 // AbortMerge cancels a currently ongoing Git merge operation.
@@ -907,7 +908,7 @@ func (r *Runner) RemoteBranches() ([]string, error) {
 
 // Remotes provides the names of all Git remotes in this repository.
 func (r *Runner) Remotes() ([]string, error) {
-	if !r.RemotesCache.initialized {
+	if !r.RemotesCache.Initialized() {
 		out, err := r.Run("git", "remote")
 		if err != nil {
 			return []string{}, fmt.Errorf("cannot determine remotes: %w", err)
