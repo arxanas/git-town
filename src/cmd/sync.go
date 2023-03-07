@@ -188,9 +188,9 @@ func updateFeatureBranchSteps(list *runstate.StepListBuilder, branch string, rep
 	syncStrategy := list.SyncStrategy(repo.Config.SyncStrategy())
 	hasTrackingBranch := list.Bool(repo.Silent.HasTrackingBranch(branch))
 	if hasTrackingBranch {
-		syncBranchSteps(list, repo.Silent.TrackingBranch(branch), syncStrategy)
+		syncBranchSteps(list, repo.Silent.TrackingBranch(branch), string(syncStrategy))
 	}
-	syncBranchSteps(list, repo.Config.ParentBranch(branch), syncStrategy)
+	syncBranchSteps(list, repo.Config.ParentBranch(branch), string(syncStrategy))
 }
 
 func updatePerennialBranchSteps(list *runstate.StepListBuilder, branch string, repo *git.ProdRepo) {
@@ -222,9 +222,9 @@ func syncBranchSteps(list *runstate.StepListBuilder, otherBranch, strategy strin
 
 func pushFeatureBranchSteps(list *runstate.StepListBuilder, branch string, syncStrategy config.SyncStrategy, pushHook bool) {
 	switch syncStrategy {
-	case "merge":
+	case config.SyncStrategyMerge:
 		list.Add(&steps.PushBranchStep{Branch: branch, NoPushHook: !pushHook})
-	case "rebase":
+	case config.SyncStrategyRebase:
 		list.Add(&steps.PushBranchStep{Branch: branch, ForceWithLease: true})
 	default:
 		list.Fail("unknown syncStrategy value: %q", syncStrategy)
