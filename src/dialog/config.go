@@ -6,6 +6,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // EnsureIsConfigured has the user to confgure the main branch and perennial branches if needed.
@@ -24,7 +25,7 @@ func EnsureIsConfigured(repo *git.ProdRepo) error {
 
 // ConfigureMainBranch has the user to confgure the main branch.
 func ConfigureMainBranch(repo *git.ProdRepo) error {
-	localBranches, err := repo.Silent.LocalBranches()
+	localBranches, err := repo.Silent.LocalBranches(run.Silent)
 	if err != nil {
 		return err
 	}
@@ -36,12 +37,12 @@ func ConfigureMainBranch(repo *git.ProdRepo) error {
 	if err != nil {
 		return err
 	}
-	return repo.Config.SetMainBranch(newMainBranch)
+	return repo.Config.SetMainBranch(newMainBranch, run.Silent)
 }
 
 // ConfigurePerennialBranches has the user to confgure the perennial branches.
 func ConfigurePerennialBranches(repo *git.ProdRepo) error {
-	branches, err := repo.Silent.LocalBranchesWithoutMain()
+	branches, err := repo.Silent.LocalBranchesWithoutMain(run.Silent)
 	if err != nil {
 		return err
 	}
@@ -56,7 +57,7 @@ func ConfigurePerennialBranches(repo *git.ProdRepo) error {
 	if err != nil {
 		return err
 	}
-	return repo.Config.SetPerennialBranches(newPerennialBranches)
+	return repo.Config.SetPerennialBranches(run.Silent, newPerennialBranches)
 }
 
 // Helpers

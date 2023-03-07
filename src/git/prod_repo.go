@@ -12,10 +12,10 @@ import (
 // ProdRepo is a Git Repo in production code.
 type ProdRepo struct {
 	Config       config.GitTown // the git.Configuration instance for this repo
-	DryRun       *DryRun
-	Logging      Runner        // the Runner instance to Git operations that show up in the output
-	LoggingShell *LoggingShell // the LoggingShell instance used
-	Silent       Runner        // the Runner instance for silent Git operations
+	DryRun       *run.DryRun
+	Logging      Runner            // the Runner instance to Git operations that show up in the output
+	LoggingShell *run.LoggingShell // the LoggingShell instance used
+	Silent       Runner            // the Runner instance for silent Git operations
 }
 
 // NewProdRepo provides a Repo instance in the current working directory.
@@ -23,12 +23,11 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 	silentShell := run.SilentShell{Debug: debugFlag}
 	config := config.NewGitTown(silentShell)
 	currentBranchTracker := Cache[string]{}
-	dryRun := DryRun{}
+	dryRun := run.DryRun{}
 	isRepoCache := Cache[bool]{}
 	remoteBranchCache := Cache[[]string]{}
 	remotesCache := Cache[[]string]{}
 	silentRunner := Runner{
-		Shell:              silentShell,
 		Config:             config,
 		CurrentBranchCache: &currentBranchTracker,
 		DryRun:             &dryRun,
@@ -37,9 +36,8 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 		RemoteBranchCache:  &remoteBranchCache,
 		RootDirCache:       &Cache[string]{},
 	}
-	loggingShell := NewLoggingShell(&silentRunner, &dryRun)
+	loggingShell := run.NewLoggingShell(&dryRun)
 	loggingRunner := Runner{
-		Shell:              loggingShell,
 		Config:             config,
 		CurrentBranchCache: &currentBranchTracker,
 		DryRun:             &dryRun,
@@ -59,7 +57,7 @@ func NewProdRepo(debugFlag *bool) ProdRepo {
 
 // RemoveOutdatedConfiguration removes outdated Git Town configuration.
 func (r *ProdRepo) RemoveOutdatedConfiguration(shell run.Shell) error {
-	branches, err := r.Silent.LocalAndOriginBranches()
+	branches, err := r.Silent.LocalAndOriginBranches(shell)
 	if err != nil {
 		return err
 	}

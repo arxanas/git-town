@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 type ParentBranches struct {
@@ -43,13 +44,13 @@ func (pbd *ParentBranches) AskForBranchAncestry(branch, defaultBranch string, re
 				return err
 			}
 			if parent == perennialBranchOption {
-				err = repo.Config.AddToPerennialBranches(current)
+				err = repo.Config.AddToPerennialBranches(run.Silent, current)
 				if err != nil {
 					return err
 				}
 				break
 			}
-			err = repo.Config.SetParent(current, parent)
+			err = repo.Config.SetParent(current, parent, run.Silent)
 			if err != nil {
 				return err
 			}
@@ -64,7 +65,7 @@ func (pbd *ParentBranches) AskForBranchAncestry(branch, defaultBranch string, re
 
 // AskForBranchParent prompts the user for the parent of the given branch.
 func (pbd *ParentBranches) AskForBranchParent(branch, defaultBranch string, repo *git.ProdRepo) (string, error) {
-	choices, err := repo.Silent.LocalBranchesMainFirst()
+	choices, err := repo.Silent.LocalBranchesMainFirst(run.Silent)
 	if err != nil {
 		return "", err
 	}

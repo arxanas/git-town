@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/git-town/git-town/v7/src/config"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/test"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,12 +14,12 @@ func TestGitTown(t *testing.T) {
 	t.Run(".SetOffline()", func(t *testing.T) {
 		t.Parallel()
 		repo := test.CreateTestGitTownRepo(t)
-		err := repo.Config.SetOffline(true)
+		err := repo.Config.SetOffline(true, run.Silent)
 		assert.NoError(t, err)
 		offline, err := repo.Config.IsOffline()
 		assert.Nil(t, err)
 		assert.True(t, offline)
-		err = repo.Config.SetOffline(false)
+		err = repo.Config.SetOffline(false, run.Silent)
 		assert.NoError(t, err)
 		offline, err = repo.Config.IsOffline()
 		assert.Nil(t, err)
