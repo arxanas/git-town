@@ -17,6 +17,7 @@ import (
 // It is used by Git Town commands to run Git commands that show up in their output.
 type LoggingShell struct {
 	dryRun *DryRun
+	git    git
 }
 
 // NewLoggingShell provides StreamingShell instances.
@@ -30,8 +31,12 @@ func (shell LoggingShell) WorkingDir() string {
 }
 
 // Run runs the given command in this ShellRunner's directory.
-func (shell LoggingShell) Run(currentBranch string, cmd string, args ...string) (*Result, error) {
-	err := shell.PrintCommand(currentBranch, cmd, args...)
+func (shell LoggingShell) Run(cmd string, args ...string) (*Result, error) {
+	currentBranch, err := shell.git.currentBranch()
+	if err != nil {
+		return nil, err
+	}
+	err = shell.PrintCommand(currentBranch, cmd, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,9 +62,9 @@ func (shell LoggingShell) Run(currentBranch string, cmd string, args ...string) 
 // RunMany runs all given commands in current directory.
 // Commands are provided as a list of argv-style strings.
 // Failed commands abort immediately with the encountered error.
-func (shell LoggingShell) RunMany(currentBranch string, commands [][]string) error {
+func (shell LoggingShell) RunMany(commands [][]string) error {
 	for _, argv := range commands {
-		_, err := shell.Run(currentBranch, argv[0], argv[1:]...)
+		_, err := shell.Run(argv[0], argv[1:]...)
 		if err != nil {
 			return fmt.Errorf("error running command %q: %w", argv, err)
 		}
@@ -68,13 +73,13 @@ func (shell LoggingShell) RunMany(currentBranch string, commands [][]string) err
 }
 
 // RunString runs the given command (including possible arguments) in this ShellInDir's directory.
-func (shell LoggingShell) RunString(currentBranch, fullCmd string) (*Result, error) {
+func (shell LoggingShell) RunString(fullCmd string) (*Result, error) {
 	parts, err := shellquote.Split(fullCmd)
 	if err != nil {
 		return nil, fmt.Errorf("cannot split command %q: %w", fullCmd, err)
 	}
 	cmd, args := parts[0], parts[1:]
-	return shell.Run(currentBranch, cmd, args...)
+	return shell.Run(cmd, args...)
 }
 
 // RunStringWith runs the given command (including possible arguments) in this ShellInDir's directory.
@@ -103,4 +108,10 @@ func (shell LoggingShell) PrintCommand(currentBranch string, cmd string, args ..
 		fmt.Println(header)
 	}
 	return nil
+}
+
+// git defines the Git functionality needed by the LoggingShell.
+// This avoids a dependency on the "git" package since the "git" package uses the "shell" package.
+type git interface {
+	currentBranch() (string, error)
 }
