@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/git"
@@ -22,17 +23,11 @@ Does not overwrite existing aliases.
 
 This can conflict with other tools that also define Git aliases.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			switch args[0] {
+			switch strings.ToLower(args[0]) {
 			case "add":
-				err := addAliases(repo)
-				if err != nil {
-					return err
-				}
+				return addAliases(repo)
 			case "remove":
-				err := removeAliases(repo)
-				if err != nil {
-					return err
-				}
+				return removeAliases(repo)
 			}
 			return fmt.Errorf(`invalid argument %q. Please provide either "add" or "remove"`, args[0])
 		},
