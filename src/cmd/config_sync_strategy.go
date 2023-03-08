@@ -6,6 +6,7 @@ import (
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -59,7 +60,7 @@ func setSyncStrategy(globalFlag bool, repo *git.ProdRepo, value string) error {
 		return err
 	}
 	if globalFlag {
-		return repo.Config.SetSyncStrategyGlobal(syncStrategy)
+		return repo.Config.SetSyncStrategyGlobal(syncStrategy, run.Silent)
 	}
-	return repo.Config.SetSyncStrategy(syncStrategy)
+	return repo.Config.SetSyncStrategy(syncStrategy, run.Silent)
 }

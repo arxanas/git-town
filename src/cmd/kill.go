@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/git-town/git-town/v7/src/steps"
 	"github.com/spf13/cobra"
@@ -54,7 +55,7 @@ type killConfig struct {
 }
 
 func determineKillConfig(args []string, repo *git.ProdRepo) (*killConfig, error) {
-	initialBranch, err := repo.Silent.CurrentBranch()
+	initialBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +68,7 @@ func determineKillConfig(args []string, repo *git.ProdRepo) (*killConfig, error)
 	if !repo.Config.IsFeatureBranch(targetBranch) {
 		return nil, fmt.Errorf("you can only kill feature branches")
 	}
-	isTargetBranchLocal, err := repo.Silent.HasLocalBranch(targetBranch)
+	isTargetBranchLocal, err := repo.Runner.HasLocalBranch(targetBranch, run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func determineKillConfig(args []string, repo *git.ProdRepo) (*killConfig, error)
 		}
 		repo.Config.Reload()
 	}
-	hasOrigin, err := repo.Silent.HasOrigin()
+	hasOrigin, err := repo.Runner.HasOrigin(run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -88,13 +89,13 @@ func determineKillConfig(args []string, repo *git.ProdRepo) (*killConfig, error)
 		return nil, err
 	}
 	if hasOrigin && !isOffline {
-		err := repo.Logging.Fetch()
+		err := repo.Runner.Fetch(run.Logging)
 		if err != nil {
 			return nil, err
 		}
 	}
 	if initialBranch != targetBranch {
-		hasTargetBranch, err := repo.Silent.HasLocalOrOriginBranch(targetBranch)
+		hasTargetBranch, err := repo.Runner.HasLocalOrOriginBranch(targetBranch, run.Silent)
 		if err != nil {
 			return nil, err
 		}
@@ -102,15 +103,15 @@ func determineKillConfig(args []string, repo *git.ProdRepo) (*killConfig, error)
 			return nil, fmt.Errorf("there is no branch named %q", targetBranch)
 		}
 	}
-	hasTrackingBranch, err := repo.Silent.HasTrackingBranch(targetBranch)
+	hasTrackingBranch, err := repo.Runner.HasTrackingBranch(targetBranch, run.Silent)
 	if err != nil {
 		return nil, err
 	}
-	previousBranch, err := repo.Silent.PreviouslyCheckedOutBranch()
+	previousBranch, err := repo.Runner.PreviouslyCheckedOutBranch(run.Silent)
 	if err != nil {
 		return nil, err
 	}
-	hasOpenChanges, err := repo.Silent.HasOpenChanges()
+	hasOpenChanges, err := repo.Runner.HasOpenChanges(run.Silent)
 	if err != nil {
 		return nil, err
 	}

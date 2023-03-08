@@ -9,6 +9,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/giturl"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // Connector describes the activities that Git Town performs on code hosting platforms via their API.
@@ -101,7 +102,7 @@ type gitTownConfig interface {
 
 // runner defines the runner methods used by the hosting package.
 type gitRunner interface {
-	ShaForBranch(string) (string, error)
+	ShaForBranch(string, run.Shell) (string, error)
 }
 
 // logFn defines a function with fmt.Printf API that Connector instances can use to give updates on activities they do.

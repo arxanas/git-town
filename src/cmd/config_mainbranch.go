@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -35,12 +36,12 @@ func printMainBranch(repo *git.ProdRepo) {
 }
 
 func setMainBranch(branch string, repo *git.ProdRepo) error {
-	hasBranch, err := repo.Silent.HasLocalBranch(branch)
+	hasBranch, err := repo.Runner.HasLocalBranch(branch, run.Silent)
 	if err != nil {
 		return err
 	}
 	if !hasBranch {
 		return fmt.Errorf("there is no branch named %q", branch)
 	}
-	return repo.Config.SetMainBranch(branch)
+	return repo.Config.SetMainBranch(branch, run.Silent)
 }

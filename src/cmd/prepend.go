@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/git-town/git-town/v7/src/steps"
 	"github.com/spf13/cobra"
@@ -61,22 +62,22 @@ type prependConfig struct {
 
 func determinePrependConfig(args []string, repo *git.ProdRepo) (*prependConfig, error) {
 	ec := runstate.ErrorChecker{}
-	initialBranch := ec.String(repo.Silent.CurrentBranch())
-	hasOrigin := ec.Bool(repo.Silent.HasOrigin())
-	shouldNewBranchPush := ec.Bool(repo.Config.ShouldNewBranchPush())
+	initialBranch := ec.String(repo.Runner.CurrentBranch(run.Silent))
+	hasOrigin := ec.Bool(repo.Runner.HasOrigin(run.Silent))
+	shouldNewBranchPush := ec.Bool(repo.Config.ShouldNewBranchPush(run.Silent))
 	pushHook := ec.Bool(repo.Config.PushHook())
 	isOffline := ec.Bool(repo.Config.IsOffline())
 	if ec.Err != nil {
 		return nil, ec.Err
 	}
 	if hasOrigin && !isOffline {
-		err := repo.Logging.Fetch()
+		err := repo.Runner.Fetch(run.Logging)
 		if err != nil {
 			return nil, err
 		}
 	}
 	targetBranch := args[0]
-	hasBranch, err := repo.Silent.HasLocalOrOriginBranch(targetBranch)
+	hasBranch, err := repo.Runner.HasLocalOrOriginBranch(targetBranch, run.Silent)
 	if err != nil {
 		return nil, err
 	}

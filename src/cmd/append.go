@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/git-town/git-town/v7/src/steps"
 	"github.com/spf13/cobra"
@@ -61,19 +62,19 @@ type appendConfig struct {
 
 func determineAppendConfig(args []string, repo *git.ProdRepo) (*appendConfig, error) {
 	ec := runstate.ErrorChecker{}
-	parentBranch := ec.String(repo.Silent.CurrentBranch())
-	hasOrigin := ec.Bool(repo.Silent.HasOrigin())
+	parentBranch := ec.String(repo.Runner.CurrentBranch(run.Silent))
+	hasOrigin := ec.Bool(repo.Runner.HasOrigin(run.Silent))
 	isOffline := ec.Bool(repo.Config.IsOffline())
 	pushHook := ec.Bool(repo.Config.PushHook())
-	shouldNewBranchPush := ec.Bool(repo.Config.ShouldNewBranchPush())
+	shouldNewBranchPush := ec.Bool(repo.Config.ShouldNewBranchPush(run.Silent))
 	targetBranch := args[0]
 	if ec.Err != nil {
 		return nil, ec.Err
 	}
 	if hasOrigin && !isOffline {
-		ec.Check(repo.Logging.Fetch())
+		ec.Check(repo.Runner.Fetch(run.Logging))
 	}
-	hasTargetBranch := ec.Bool(repo.Silent.HasLocalOrOriginBranch(targetBranch))
+	hasTargetBranch := ec.Bool(repo.Runner.HasLocalOrOriginBranch(targetBranch, run.Silent))
 	if hasTargetBranch {
 		ec.Fail("a branch named %q already exists", targetBranch)
 	}

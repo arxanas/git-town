@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/git-town/git-town/v7/src/steps"
 	"github.com/spf13/cobra"
@@ -47,21 +48,21 @@ type pruneBranchesConfig struct {
 }
 
 func determinePruneBranchesConfig(repo *git.ProdRepo) (*pruneBranchesConfig, error) {
-	hasOrigin, err := repo.Silent.HasOrigin()
+	hasOrigin, err := repo.Runner.HasOrigin(run.Silent)
 	if err != nil {
 		return nil, err
 	}
 	if hasOrigin {
-		err = repo.Logging.Fetch()
+		err = repo.Runner.Fetch(run.Logging)
 		if err != nil {
 			return nil, err
 		}
 	}
-	initialBranch, err := repo.Silent.CurrentBranch()
+	initialBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return nil, err
 	}
-	localBranchesWithDeletedTrackingBranches, err := repo.Silent.LocalBranchesWithDeletedTrackingBranches()
+	localBranchesWithDeletedTrackingBranches, err := repo.Runner.LocalBranchesWithDeletedTrackingBranches(run.Silent)
 	if err != nil {
 		return nil, err
 	}

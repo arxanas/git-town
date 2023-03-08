@@ -4,6 +4,7 @@ import (
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/config"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -44,5 +45,5 @@ func setPullBranchStrategy(value string, repo *git.ProdRepo) error {
 	if err != nil {
 		return err
 	}
-	return repo.Config.SetPullBranchStrategy(pullBranchStrategy)
+	return repo.Config.SetPullBranchStrategy(pullBranchStrategy, run.Silent)
 }

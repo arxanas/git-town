@@ -39,7 +39,7 @@ func Execute() error {
 	repo := git.NewProdRepo(&debugFlag)
 	rootCmd := RootCmd(&repo, &debugFlag)
 	// TODO: move into PersistentPreRunE
-	majorVersion, minorVersion, err := repo.Silent.Version()
+	majorVersion, minorVersion, err := repo.Runner.Version(run.Silent)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func validateIsConfigured(repo *git.ProdRepo) error {
 // ValidateIsRepository asserts that the current directory is in a Git repository.
 // If so, it also navigates to the root directory.
 func ValidateIsRepository(repo *git.ProdRepo) error {
-	if !repo.Silent.IsRepository() {
+	if !repo.Runner.IsRepository(run.Silent) {
 		return errors.New("this is not a Git repository")
 	}
 	return repo.NavigateToRootIfNecessary()
@@ -150,7 +150,7 @@ func handleUnfinishedState(repo *git.ProdRepo, connector hosting.Connector) (qui
 		err = runstate.Delete(repo)
 		return false, err
 	case dialog.ResponseTypeContinue:
-		hasConflicts, err := repo.Silent.HasConflicts()
+		hasConflicts, err := repo.Runner.HasConflicts(run.Silent)
 		if err != nil {
 			return false, err
 		}

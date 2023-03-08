@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/git-town/git-town/v7/src/steps"
 	"github.com/spf13/cobra"
@@ -68,7 +69,7 @@ type renameBranchConfig struct {
 }
 
 func determineRenameBranchConfig(args []string, forceFlag bool, repo *git.ProdRepo) (*renameBranchConfig, error) {
-	initialBranch, err := repo.Silent.CurrentBranch()
+	initialBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -101,33 +102,33 @@ func determineRenameBranchConfig(args []string, forceFlag bool, repo *git.ProdRe
 		return nil, fmt.Errorf("cannot rename branch to current name")
 	}
 	if !isOffline {
-		err := repo.Logging.Fetch()
+		err := repo.Runner.Fetch(run.Logging)
 		if err != nil {
 			return nil, err
 		}
 	}
-	hasOldBranch, err := repo.Silent.HasLocalBranch(oldBranch)
+	hasOldBranch, err := repo.Runner.HasLocalBranch(oldBranch, run.Silent)
 	if err != nil {
 		return nil, err
 	}
 	if !hasOldBranch {
 		return nil, fmt.Errorf("there is no branch named %q", oldBranch)
 	}
-	isBranchInSync, err := repo.Silent.IsBranchInSync(oldBranch)
+	isBranchInSync, err := repo.Runner.IsBranchInSync(oldBranch, run.Silent)
 	if err != nil {
 		return nil, err
 	}
 	if !isBranchInSync {
 		return nil, fmt.Errorf("%q is not in sync with its tracking branch, please sync the branches before renaming", oldBranch)
 	}
-	hasNewBranch, err := repo.Silent.HasLocalOrOriginBranch(newBranch)
+	hasNewBranch, err := repo.Runner.HasLocalOrOriginBranch(newBranch, run.Silent)
 	if err != nil {
 		return nil, err
 	}
 	if hasNewBranch {
 		return nil, fmt.Errorf("a branch named %q already exists", newBranch)
 	}
-	oldBranchHasTrackingBranch, err := repo.Silent.HasTrackingBranch(oldBranch)
+	oldBranchHasTrackingBranch, err := repo.Runner.HasTrackingBranch(oldBranch, run.Silent)
 	if err != nil {
 		return nil, err
 	}

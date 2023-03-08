@@ -6,6 +6,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/spf13/cobra"
 )
@@ -16,7 +17,7 @@ func configCmd(repo *git.ProdRepo) *cobra.Command {
 		Short: "Displays your Git Town configuration",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ec := runstate.ErrorChecker{}
-			pushNewBranches := ec.Bool(repo.Config.ShouldNewBranchPush())
+			pushNewBranches := ec.Bool(repo.Config.ShouldNewBranchPush(run.Silent))
 			pushHook := ec.Bool(repo.Config.PushHook())
 			isOffline := ec.Bool(repo.Config.IsOffline())
 			deleteOrigin := ec.Bool(repo.Config.ShouldShipDeleteOriginBranch())

@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/spf13/cobra"
 )
@@ -68,13 +69,13 @@ func determineHackConfig(args []string, promptForParent bool, repo *git.ProdRepo
 	ec := runstate.ErrorChecker{}
 	targetBranch := args[0]
 	parentBranch := ec.String(determineParentBranch(targetBranch, promptForParent, repo))
-	hasOrigin := ec.Bool(repo.Silent.HasOrigin())
-	shouldNewBranchPush := ec.Bool(repo.Config.ShouldNewBranchPush())
+	hasOrigin := ec.Bool(repo.Runner.HasOrigin(run.Silent))
+	shouldNewBranchPush := ec.Bool(repo.Config.ShouldNewBranchPush(run.Silent))
 	isOffline := ec.Bool(repo.Config.IsOffline())
 	if ec.Err == nil && hasOrigin && !isOffline {
-		ec.Check(repo.Logging.Fetch())
+		ec.Check(repo.Runner.Fetch(run.Logging))
 	}
-	hasBranch := ec.Bool(repo.Silent.HasLocalOrOriginBranch(targetBranch))
+	hasBranch := ec.Bool(repo.Runner.HasLocalOrOriginBranch(targetBranch, run.Silent))
 	pushHook := ec.Bool(repo.Config.PushHook())
 	if hasBranch {
 		return nil, fmt.Errorf("a branch named %q already exists", targetBranch)

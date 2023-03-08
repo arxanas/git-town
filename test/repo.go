@@ -32,7 +32,7 @@ func CreateRepo(t *testing.T) Repo {
 	assert.NoError(t, err)
 	repo, err := InitRepo(workingDir, homeDir, homeDir)
 	assert.NoError(t, err)
-	_, err = repo.Run("git", "commit", "--allow-empty", "-m", "initial commit")
+	_, err = repo.shell.Run("git", "commit", "--allow-empty", "-m", "initial commit")
 	assert.NoError(t, err)
 	return repo
 }
@@ -41,7 +41,7 @@ func CreateRepo(t *testing.T) Repo {
 // including necessary Git configuration to make commits. Creates missing folders as needed.
 func InitRepo(workingDir, homeDir, binDir string) (Repo, error) {
 	result := NewRepo(workingDir, homeDir, binDir)
-	err := result.RunMany([][]string{
+	err := result.shell.RunMany([][]string{
 		{"git", "init", "--initial-branch=initial"},
 		{"git", "config", "--global", "user.name", "user"},
 		{"git", "config", "--global", "user.email", "email@example.com"},
@@ -54,9 +54,8 @@ func InitRepo(workingDir, homeDir, binDir string) (Repo, error) {
 func NewRepo(workingDir, homeDir, binDir string) Repo {
 	shell := NewMockingShell(workingDir, homeDir, binDir)
 	runner := git.Runner{
-		Shell:              &shell,
 		Config:             config.NewGitTown(&shell),
-		DryRun:             &git.DryRun{},
+		DryRun:             &run.DryRun{},
 		IsRepoCache:        &cache.Bool{},
 		RemoteBranchCache:  &cache.Strings{},
 		RemotesCache:       &cache.Strings{},
@@ -97,18 +96,18 @@ func (repo *Repo) Clone(targetDir string) (Repo, error) {
 func (repo *Repo) FilesInBranches() (DataTable, error) {
 	result := DataTable{}
 	result.AddRow("BRANCH", "NAME", "CONTENT")
-	branches, err := repo.LocalBranchesMainFirst()
+	branches, err := repo.LocalBranchesMainFirst(run.Silent)
 	if err != nil {
 		return DataTable{}, err
 	}
 	lastBranch := ""
 	for _, branch := range branches {
-		files, err := repo.FilesInBranch(branch)
+		files, err := repo.FilesInBranch(branch, run.Silent)
 		if err != nil {
 			return DataTable{}, err
 		}
 		for _, file := range files {
-			content, err := repo.FileContentInCommit(branch, file)
+			content, err := repo.FileContentInCommit(branch, file, run.Silent)
 			if err != nil {
 				return DataTable{}, err
 			}
@@ -128,11 +127,11 @@ func (repo *Repo) FilesInBranches() (DataTable, error) {
 func CreateTestGitTownRepo(t *testing.T) Repo {
 	t.Helper()
 	repo := CreateRepo(t)
-	err := repo.CreateBranch("main", "initial")
+	err := repo.CreateBranch("main", "initial", run.Silent)
 	assert.NoError(t, err)
-	err = repo.Config.SetMainBranch("main")
+	err = repo.Config.SetMainBranch("main", run.Silent)
 	assert.NoError(t, err)
-	err = repo.Config.SetPerennialBranches([]string{})
+	err = repo.Config.SetPerennialBranches(run.Silent, []string{})
 	assert.NoError(t, err)
 	return repo
 }

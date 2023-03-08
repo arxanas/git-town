@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/git-town/git-town/v7/src/config"
+	"github.com/git-town/git-town/v7/src/run"
 )
 
 // BitbucketConnector provides access to the API of Bitbucket installations.
@@ -53,7 +54,7 @@ func (c *BitbucketConnector) HostingServiceName() string {
 
 func (c *BitbucketConnector) NewProposalURL(branch, parentBranch string) (string, error) {
 	query := url.Values{}
-	branchSha, err := c.git.ShaForBranch(branch)
+	branchSha, err := c.git.ShaForBranch(branch, run.Silent)
 	if err != nil {
 		return "", fmt.Errorf("cannot determine pull request URL from %q to %q: %w", branch, parentBranch, err)
 	}

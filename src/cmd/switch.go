@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +14,7 @@ func switchCmd(repo *git.ProdRepo) *cobra.Command {
 		Use:   "switch",
 		Short: "Displays the local branches visually and allows switching between them",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			currentBranch, err := repo.Silent.CurrentBranch()
+			currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 			if err != nil {
 				return err
 			}
@@ -22,7 +23,7 @@ func switchCmd(repo *git.ProdRepo) *cobra.Command {
 				return err
 			}
 			if newBranch != nil && *newBranch != currentBranch {
-				err = repo.Silent.CheckoutBranch(*newBranch)
+				err = repo.Runner.CheckoutBranch(*newBranch, run.Silent)
 				if err != nil {
 					return err
 				}
@@ -70,7 +71,7 @@ func addEntryAndChildren(entries dialog.ModalEntries, branch string, indent int,
 		Value: branch,
 	})
 	var err error
-	for _, child := range repo.Silent.Config.ChildBranches(branch) {
+	for _, child := range repo.Runner.Config.ChildBranches(branch) {
 		entries, err = addEntryAndChildren(entries, child, indent+1, repo)
 		if err != nil {
 			return entries, err

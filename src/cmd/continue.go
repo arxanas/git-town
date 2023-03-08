@@ -6,6 +6,7 @@ import (
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/spf13/cobra"
 )
@@ -22,14 +23,14 @@ func continueCmd(repo *git.ProdRepo) *cobra.Command {
 			if runState == nil || !runState.IsUnfinished() {
 				return fmt.Errorf("nothing to continue")
 			}
-			hasConflicts, err := repo.Silent.HasConflicts()
+			hasConflicts, err := repo.Runner.HasConflicts(run.Silent)
 			if err != nil {
 				return err
 			}
 			if hasConflicts {
 				return fmt.Errorf("you must resolve the conflicts before continuing")
 			}
-			connector, err := hosting.NewConnector(&repo.Config, &repo.Silent, cli.PrintConnectorAction)
+			connector, err := hosting.NewConnector(&repo.Config, &repo.Runner, cli.PrintConnectorAction)
 			if err != nil {
 				return err
 			}

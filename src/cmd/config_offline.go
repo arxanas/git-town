@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +28,7 @@ Git Town avoids network operations in offline mode.`,
 				if err != nil {
 					return fmt.Errorf(`invalid argument: %q. Please provide either "yes" or "no".\n`, args[0])
 				}
-				err = repo.Config.SetOffline(value)
+				err = repo.Config.SetOffline(value, run.Silent)
 				if err != nil {
 					return err
 				}

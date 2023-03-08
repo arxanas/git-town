@@ -16,10 +16,10 @@ func TestToHostingService(t *testing.T) {
 			"github":    config.HostingServiceGitHub,
 			"gitlab":    config.HostingServiceGitLab,
 			"gitea":     config.HostingServiceGitea,
-			"":          config.HostingServiceNone,
+			"":          config.NoHostingService,
 		}
 		for give, want := range tests {
-			have, err := config.NewHostingService(give)
+			have, err := config.ToHostingService(give)
 			assert.Nil(t, err)
 			assert.Equal(t, want, have)
 		}
@@ -27,7 +27,7 @@ func TestToHostingService(t *testing.T) {
 
 	t.Run("invalid content", func(t *testing.T) {
 		t.Parallel()
-		_, err := config.NewHostingService("zonk")
+		_, err := config.ToHostingService("zonk")
 		assert.Error(t, err)
 	})
 }

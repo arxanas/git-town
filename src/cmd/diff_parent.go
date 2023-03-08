@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +23,7 @@ Exits with error code 1 if the given branch is a perennial branch or the main br
 			if err != nil {
 				return err
 			}
-			return repo.Logging.DiffParent(config.branch, config.parentBranch)
+			return repo.Runner.DiffParent(config.branch, config.parentBranch, run.Logging)
 		},
 		Args: cobra.MaximumNArgs(1),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -43,7 +44,7 @@ type diffParentConfig struct {
 
 // Does not return error because "Ensure" functions will call exit directly.
 func determineDiffParentConfig(args []string, repo *git.ProdRepo) (*diffParentConfig, error) {
-	initialBranch, err := repo.Silent.CurrentBranch()
+	initialBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +55,7 @@ func determineDiffParentConfig(args []string, repo *git.ProdRepo) (*diffParentCo
 		branch = initialBranch
 	}
 	if initialBranch != branch {
-		hasBranch, err := repo.Silent.HasLocalBranch(branch)
+		hasBranch, err := repo.Runner.HasLocalBranch(branch, run.Silent)
 		if err != nil {
 			return nil, err
 		}

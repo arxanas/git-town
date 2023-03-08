@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +39,7 @@ func printPushNewBranches(globalFlag bool, repo *git.ProdRepo) error {
 	if globalFlag {
 		setting, err = repo.Config.ShouldNewBranchPushGlobal()
 	} else {
-		setting, err = repo.Config.ShouldNewBranchPush()
+		setting, err = repo.Config.ShouldNewBranchPush(run.Silent)
 	}
 	if err != nil {
 		return err
@@ -52,5 +53,5 @@ func setPushNewBranches(text string, globalFlag bool, repo *git.ProdRepo) error 
 	if err != nil {
 		return fmt.Errorf(`invalid argument: %q. Please provide either "yes" or "no"`, text)
 	}
-	return repo.Config.SetNewBranchPush(value, globalFlag)
+	return repo.Config.SetNewBranchPush(value, globalFlag, run.Silent)
 }

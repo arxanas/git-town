@@ -25,7 +25,7 @@ func EnsureIsConfigured(repo *git.ProdRepo) error {
 
 // ConfigureMainBranch has the user to confgure the main branch.
 func ConfigureMainBranch(repo *git.ProdRepo) error {
-	localBranches, err := repo.Silent.LocalBranches(run.Silent)
+	localBranches, err := repo.Runner.LocalBranches(run.Silent)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func ConfigureMainBranch(repo *git.ProdRepo) error {
 
 // ConfigurePerennialBranches has the user to confgure the perennial branches.
 func ConfigurePerennialBranches(repo *git.ProdRepo) error {
-	branches, err := repo.Silent.LocalBranchesWithoutMain(run.Silent)
+	branches, err := repo.Runner.LocalBranchesWithoutMain(run.Silent)
 	if err != nil {
 		return err
 	}

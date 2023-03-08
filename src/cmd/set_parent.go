@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +15,7 @@ func setParentCommand(repo *git.ProdRepo) *cobra.Command {
 		Short: "Prompts to set the parent branch for the current branch",
 		Long:  `Prompts to set the parent branch for the current branch`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			currentBranch, err := repo.Silent.CurrentBranch()
+			currentBranch, err := repo.Runner.CurrentBranch(run.Silent)
 			if err != nil {
 				return err
 			}
@@ -25,7 +26,7 @@ func setParentCommand(repo *git.ProdRepo) *cobra.Command {
 			if defaultParentBranch == "" {
 				defaultParentBranch = repo.Config.MainBranch()
 			}
-			err = repo.Config.RemoveParentBranch(currentBranch)
+			err = repo.Config.RemoveParentBranch(currentBranch, run.Silent)
 			if err != nil {
 				return err
 			}

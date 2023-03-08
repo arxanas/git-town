@@ -23,7 +23,7 @@ func abortCmd(repo *git.ProdRepo) *cobra.Command {
 				return fmt.Errorf("nothing to abort")
 			}
 			abortRunState := runState.CreateAbortRunState()
-			connector, err := hosting.NewConnector(&repo.Config, &repo.Silent, cli.PrintConnectorAction)
+			connector, err := hosting.NewConnector(&repo.Config, &repo.Runner, cli.PrintConnectorAction)
 			if err != nil {
 				return err
 			}

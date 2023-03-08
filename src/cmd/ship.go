@@ -9,6 +9,7 @@ import (
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/git-town/git-town/v7/src/steps"
 	"github.com/spf13/cobra"
@@ -46,7 +47,7 @@ GitHub's feature to automatically delete head branches,
 run "git config %s false"
 and Git Town will leave it up to your origin server to delete the remote branch.`, config.GithubTokenKey, config.ShipDeleteRemoteBranchKey),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			connector, err := hosting.NewConnector(&repo.Config, &repo.Silent, cli.PrintConnectorAction)
+			connector, err := hosting.NewConnector(&repo.Config, &repo.Runner, cli.PrintConnectorAction)
 			if err != nil {
 				return err
 			}
@@ -91,7 +92,7 @@ type shipConfig struct {
 }
 
 func determineShipConfig(args []string, connector hosting.Connector, repo *git.ProdRepo) (*shipConfig, error) {
-	hasOrigin, err := repo.Silent.HasOrigin()
+	hasOrigin, err := repo.Runner.HasOrigin(run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ func determineShipConfig(args []string, connector hosting.Connector, repo *git.P
 	if err != nil {
 		return nil, err
 	}
-	initialBranch, err := repo.Silent.CurrentBranch()
+	initialBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +116,7 @@ func determineShipConfig(args []string, connector hosting.Connector, repo *git.P
 	}
 	isShippingInitialBranch := branchToShip == initialBranch
 	if isShippingInitialBranch {
-		hasOpenChanges, err := repo.Silent.HasOpenChanges()
+		hasOpenChanges, err := repo.Runner.HasOpenChanges(run.Silent)
 		if err != nil {
 			return nil, err
 		}
@@ -124,13 +125,13 @@ func determineShipConfig(args []string, connector hosting.Connector, repo *git.P
 		}
 	}
 	if hasOrigin && !isOffline {
-		err := repo.Logging.Fetch()
+		err := repo.Runner.Fetch(run.Logging)
 		if err != nil {
 			return nil, err
 		}
 	}
 	if !isShippingInitialBranch {
-		hasBranch, err := repo.Silent.HasLocalOrOriginBranch(branchToShip)
+		hasBranch, err := repo.Runner.HasLocalOrOriginBranch(branchToShip, run.Silent)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +151,7 @@ func determineShipConfig(args []string, connector hosting.Connector, repo *git.P
 	if err != nil {
 		return nil, err
 	}
-	hasTrackingBranch, err := repo.Silent.HasTrackingBranch(branchToShip)
+	hasTrackingBranch, err := repo.Runner.HasTrackingBranch(branchToShip, run.Silent)
 	if err != nil {
 		return nil, err
 	}

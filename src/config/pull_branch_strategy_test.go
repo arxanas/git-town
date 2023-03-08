@@ -16,7 +16,7 @@ func TestNewPullBranchStrategy(t *testing.T) {
 			"rebase": config.PullBranchStrategyRebase,
 		}
 		for give, want := range tests {
-			have, err := config.NewPullBranchStrategy(give)
+			have, err := config.ToPullBranchStrategy(give)
 			assert.Nil(t, err)
 			assert.Equal(t, want, have)
 		}
@@ -24,14 +24,14 @@ func TestNewPullBranchStrategy(t *testing.T) {
 
 	t.Run("defaults to rebase", func(t *testing.T) {
 		t.Parallel()
-		have, err := config.NewPullBranchStrategy("")
+		have, err := config.ToPullBranchStrategy("")
 		assert.Nil(t, err)
 		assert.Equal(t, config.PullBranchStrategyRebase, have)
 	})
 
 	t.Run("invalid value", func(t *testing.T) {
 		t.Parallel()
-		_, err := config.NewPullBranchStrategy("zonk")
+		_, err := config.ToPullBranchStrategy("zonk")
 		assert.Error(t, err)
 	})
 }

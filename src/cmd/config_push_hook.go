@@ -5,6 +5,7 @@ import (
 
 	"github.com/git-town/git-town/v7/src/cli"
 	"github.com/git-town/git-town/v7/src/git"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +53,7 @@ func setPushHook(text string, global bool, repo *git.ProdRepo) error {
 		return fmt.Errorf(`invalid argument: %q. Please provide either "yes" or "no"`, text)
 	}
 	if global {
-		return repo.Config.SetPushHookGlobally(value)
+		return repo.Config.SetPushHookGlobally(value, run.Silent)
 	}
-	return repo.Config.SetPushHookLocally(value)
+	return repo.Config.SetPushHookLocally(value, run.Silent)
 }

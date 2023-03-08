@@ -8,6 +8,7 @@ import (
 	"github.com/git-town/git-town/v7/src/dialog"
 	"github.com/git-town/git-town/v7/src/git"
 	"github.com/git-town/git-town/v7/src/hosting"
+	"github.com/git-town/git-town/v7/src/run"
 	"github.com/git-town/git-town/v7/src/runstate"
 	"github.com/git-town/git-town/v7/src/steps"
 	"github.com/spf13/cobra"
@@ -38,7 +39,7 @@ where hostname matches what is in your ssh config file.`, config.CodeHostingDriv
 			if err != nil {
 				return err
 			}
-			connector, err := hosting.NewConnector(&repo.Config, &repo.Silent, cli.PrintConnectorAction)
+			connector, err := hosting.NewConnector(&repo.Config, &repo.Runner, cli.PrintConnectorAction)
 			if err != nil {
 				return err
 			}
@@ -75,17 +76,17 @@ type newPullRequestConfig struct {
 }
 
 func determineNewPullRequestConfig(repo *git.ProdRepo) (*newPullRequestConfig, error) {
-	hasOrigin, err := repo.Silent.HasOrigin()
+	hasOrigin, err := repo.Runner.HasOrigin(run.Silent)
 	if err != nil {
 		return nil, err
 	}
 	if hasOrigin {
-		err := repo.Logging.Fetch()
+		err := repo.Runner.Fetch(run.Logging)
 		if err != nil {
 			return nil, err
 		}
 	}
-	initialBranch, err := repo.Silent.CurrentBranch()
+	initialBranch, err := repo.Runner.CurrentBranch(run.Silent)
 	if err != nil {
 		return nil, err
 	}
